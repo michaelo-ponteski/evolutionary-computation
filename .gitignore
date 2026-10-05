@@ -1,0 +1,6 @@
+target/
+.DS_Store
+
+# Course materials (lecturer's) stay local; only the instance CSVs are tracked.
+*.pdf
+*.xlsx
