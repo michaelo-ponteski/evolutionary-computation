@@ -19,7 +19,10 @@ pub fn run(inst: &Instance, runs: usize, mut method: impl FnMut(usize) -> Tour) 
     for r in 0..runs {
         let tour = method(r);
         if let Err(e) = validate(inst, &tour) {
-            panic!("run {r} on {} produced an infeasible solution: {e}", inst.name);
+            panic!(
+                "run {r} on {} produced an infeasible solution: {e}",
+                inst.name
+            );
         }
         let value = objective(inst, &tour);
         sum += value as i64;
@@ -30,5 +33,10 @@ pub fn run(inst: &Instance, runs: usize, mut method: impl FnMut(usize) -> Tour) 
         }
     }
 
-    Stats { min, max, avg: sum as f64 / runs as f64, best }
+    Stats {
+        min,
+        max,
+        avg: sum as f64 / runs as f64,
+        best,
+    }
 }

@@ -40,7 +40,9 @@ impl Instance {
                 .collect::<Result<_, _>>()
                 .map_err(|e| format!("{}:{}: {e}", path.display(), line_no + 1))?;
             let [x, y, c] = fields[..] else {
-                return Err(format!("{}:{}: expected 3 fields", path.display(), line_no + 1).into());
+                return Err(
+                    format!("{}:{}: expected 3 fields", path.display(), line_no + 1).into(),
+                );
             };
             xs.push(x);
             ys.push(y);
@@ -63,7 +65,12 @@ impl Instance {
             .file_stem()
             .map(|s| s.to_string_lossy().into_owned())
             .unwrap_or_default();
-        Ok(Self { name, n, costs, dist })
+        Ok(Self {
+            name,
+            n,
+            costs,
+            dist,
+        })
     }
 
     /// Loads an instance file (e.g. `"TSPA.csv"`) from [`problem_dir`].
