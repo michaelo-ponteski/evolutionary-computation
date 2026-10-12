@@ -37,3 +37,16 @@ conda run -n ec python scripts/plot_best.py lab1
 
 Writes `labN/plots/`: one image per best solution and one grid per instance.
 Node cost is shown by colour and size; unselected nodes are faded.
+
+## Report
+
+```sh
+cargo run --release -p lab1                         # results
+conda run -n ec python scripts/plot_best.py lab1     # plots
+conda run -n ec python scripts/check_solutions.py lab1   # verify with the checker (needs LibreOffice)
+conda run -n ec python scripts/report_tables.py lab1 # LaTeX tables from the results
+cd lab1/report && tectonic -X compile report.tex     # report.pdf
+```
+
+The report pulls every number from the generated tables, so these steps
+rebuild it without manual edits.

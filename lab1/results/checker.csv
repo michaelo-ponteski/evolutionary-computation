@@ -1,0 +1,9 @@
+instance,method,reported,checker,match
+TSPA,greedy_cycle,72590,72590,True
+TSPA,nn_anywhere,72328,72328,True
+TSPA,nn_end,84362,84362,True
+TSPA,random,236759,236759,True
+TSPB,greedy_cycle,53016,53016,True
+TSPB,nn_anywhere,52915,52915,True
+TSPB,nn_end,56007,56007,True
+TSPB,random,174617,174617,True

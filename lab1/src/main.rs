@@ -39,7 +39,8 @@ fn tour_to_lines(tour: &Tour) -> String {
 fn main() {
     let results_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("results");
     fs::create_dir_all(results_dir.join("best")).expect("cannot create results dir");
-    let mut summary = String::from("instance,method,min,max,avg\n");
+    let mut summary =
+        String::from("instance,method,min,max,avg,median,avg_length,avg_cost,avg_closing\n");
 
     for file in ["TSPA.csv", "TSPB.csv"] {
         let inst = Instance::load(file).expect("failed to load instance");
@@ -82,8 +83,8 @@ fn main() {
         for (method, s) in &methods {
             writeln!(
                 summary,
-                "{},{method},{},{},{:.2}",
-                inst.name, s.min, s.max, s.avg
+                "{},{method},{},{},{:.2},{:.1},{:.2},{:.2},{:.2}",
+                inst.name, s.min, s.max, s.avg, s.median, s.avg_length, s.avg_cost, s.avg_closing
             )
             .unwrap();
             let path = results_dir

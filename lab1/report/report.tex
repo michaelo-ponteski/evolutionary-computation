@@ -1,0 +1,243 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[font=small,skip=6pt]{caption}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\setlist[itemize]{itemsep=2pt, topsep=4pt}
+
+\graphicspath{{../plots/}}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\newcommand{\repo}{https://github.com/michaelo-ponteski/evolutionary-computation}
+\algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
+
+\title{Evolutionary Computation\\[0.3em]\large Lab 1: Greedy heuristics}
+\author{Michał Pokładowski \and Oskar Prusinowski}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\section{Problem description}
+
+We have a set of $n$ nodes. Each node $j$ has a position on a plane and a cost
+$c_j$. We have to choose exactly $k = \lceil n/2 \rceil$ nodes and connect them
+into a cycle (a Hamiltonian cycle over the chosen nodes). The goal is to make
+the length of the cycle plus the costs of the chosen nodes as small as
+possible. If a solution is the list of nodes $\pi = (\pi_1, \dots, \pi_k)$, the
+objective is
+\[
+  f(\pi) \;=\; \sum_{i=1}^{k} d_{\pi_i \pi_{i+1}} \;+\; \sum_{i=1}^{k} c_{\pi_i},
+  \qquad \pi_{k+1} \equiv \pi_1 ,
+\]
+where $d_{ij}$ is the Euclidean distance between nodes $i$ and $j$, rounded to
+the nearest integer. So we have to decide two things: \emph{which} nodes to
+visit and \emph{in what order}.
+
+Both instances, TSPA and TSPB, have 200 nodes, so every solution has 100 nodes.
+We compute the distance matrix once, right after reading an instance. The
+algorithms use only this matrix and the node costs, not the coordinates.
+
+\section{Implemented algorithms}
+
+As the assignment says, ``nearest'' does not just mean the shortest edge. In
+every step the greedy methods choose the option that increases the objective
+the least, so they look at the extra distance \emph{and} at the cost of the new
+node. If two options are equally good, we take the node with the lower index,
+so each greedy method always gives the same result for the same starting node.
+
+When node $j$ is inserted between two neighbouring nodes $a$ and $b$, we add
+the edges $a \to j$ and $j \to b$, remove the edge $a \to b$ and pay the cost of
+$j$, so the objective grows by
+\[
+  \Delta(a, j, b) \;=\; d_{aj} + d_{jb} - d_{ab} + c_j .
+\]
+
+\begin{algorithm}[H]
+\caption{Random solution}
+\begin{algorithmic}[1]
+\State $P \gets$ random permutation of $V$
+\State \Return the first $k$ nodes of $P$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Nearest neighbour, adding nodes only at the end of the path}
+\begin{algorithmic}[1]
+\Require starting node $s$
+\State $P \gets (s)$
+\While{$|P| < k$}
+  \State $\ell \gets$ last node of $P$
+  \State $j^\ast \gets \arg\min_{j \notin P} \; \bigl(d_{\ell j} + c_j\bigr)$
+  \State append $j^\ast$ to $P$
+\EndWhile
+\State \Return $P$ \Comment{the last node connects back to the first}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Nearest neighbour, adding nodes at any position of the path}
+\begin{algorithmic}[1]
+\Require starting node $s$
+\State $P \gets (s)$ \Comment{an open path $(p_1, \dots, p_m)$}
+\While{$|P| < k$}
+  \ForAll{$j \notin P$}
+    \LineComment{cost of each place where $j$ can go}
+    \State at the beginning: $\; d_{j p_1} + c_j$
+    \State at the end: $\; d_{p_m j} + c_j$
+    \State between $p_i$ and $p_{i+1}$, $i = 1, \dots, m-1$: $\; \Delta(p_i, j, p_{i+1})$
+  \EndFor
+  \State insert the node $j^\ast$ at the cheapest place found for any $j$
+\EndWhile
+\State \Return $P$ \Comment{the last node connects back to the first}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Greedy cycle}
+\begin{algorithmic}[1]
+\Require starting node $s$
+\State $j' \gets \arg\min_{j \neq s} \; \bigl(d_{sj} + c_j\bigr)$ \Comment{the ``nearest'' node}
+\State $C \gets (s, j')$ \Comment{an incomplete cycle $s \to j' \to s$}
+\While{$|C| < k$}
+  \State $(j^\ast, (a^\ast, b^\ast)) \gets \arg\min_{j \notin C,\; (a,b) \in E(C)} \; \Delta(a, j, b)$
+  \Statex \hspace{\algorithmicindent} $E(C)$: all edges of the cycle, also the one from the last node back to the first
+  \State insert $j^\ast$ between $a^\ast$ and $b^\ast$
+\EndWhile
+\State \Return $C$
+\end{algorithmic}
+\end{algorithm}
+
+Algorithms 3 and 4 differ in one thing. Algorithm 3 builds an open path and
+ignores the edge back to the start until the very end. Algorithm 4 keeps a
+closed cycle from the beginning, so this edge counts in every step like any
+other edge. Both need $O(k^2 n)$ time per solution; Algorithm 2 needs $O(kn)$.
+
+\section{Computational experiment}
+
+We ran each greedy method 200 times, once from every node as the starting
+node, and we generated 200 random solutions (with a fixed seed). 200 solutions
+take about 0.2\,s for Algorithms 3 and 4 and about 10\,ms for Algorithm 2.
+Table~\ref{tab:results} shows the objective values; the best average and the
+best minimum for each instance are in bold. Table~\ref{tab:breakdown} shows the
+median for the greedy methods and what their average objective is made of.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Objective function values over 200 solutions per method.}
+\label{tab:results}
+\input{generated/results.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Greedy methods: median objective, and average cycle length, node costs and closing edge (part of the length).}
+\label{tab:breakdown}
+\input{generated/breakdown.tex}
+\end{table}
+
+\clearpage
+\section{Best solutions}
+
+Figures~\ref{fig:tspa} and~\ref{fig:tspb} show the best solution of each
+method. The colour and the size of a node show its cost; nodes that are not in
+the solution are faded. The red dashed line is the edge from the last node of
+the list back to the first.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.93\linewidth]{TSPA.png}
+\caption{Best solutions for instance TSPA.}
+\label{fig:tspa}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.93\linewidth]{TSPB.png}
+\caption{Best solutions for instance TSPB.}
+\label{fig:tspb}
+\end{figure}
+
+\subsection*{Best solutions as lists of node indices (starting from 0)}
+\input{generated/best_solutions.tex}
+
+\subsection*{Verification with the solution checker}
+
+We checked all best solutions with the solution checker spreadsheet. We pasted
+each list of nodes into the checker, recalculated it and compared its result
+with ours (Table~\ref{tab:checker}). All values are the same. We also checked
+every solution from the experiment: each one has exactly $k$ different nodes.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Best solutions: our objective value and the value from the checker.}
+\label{tab:checker}
+\input{generated/checker.tex}
+\end{table}
+
+\section{Source code}
+
+The code is available at \url{\repo/tree/lab1}. It is written in Rust. Code
+that later labs will also use (reading instances, distance matrix, objective
+function, heuristics) is in \texttt{common/}, the experiment for this lab is in
+\texttt{lab1/}, and the Python scripts for the plots and the checker are in
+\texttt{scripts/}.
+
+\section{Conclusions}
+
+\begin{itemize}
+  \item All greedy methods are much better than random solutions. The average
+        drops from about 262\,000 to 74\,000-87\,000 on TSPA and from about
+        206\,000 to about 59\,500 on TSPB. A big part of this comes from
+        choosing cheap nodes: in the best greedy solutions on TSPA a chosen
+        node costs about 510 on average, while the average over all nodes is
+        971.
+  \item On TSPA, inserting nodes anywhere helps a lot: both insertion methods
+        are about 15\,\% better on average than adding nodes only at the end.
+        Greedy cycle has the best average and the best worst case, and nearest
+        neighbour (any position) found the best single solution, but on
+        average they differ by less than 1\,\%.
+  \item On TSPB the averages of the three greedy methods are almost the same
+        (59\,397-59\,709), but for different reasons (Table~\ref{tab:breakdown}).
+        Nearest neighbour (end only) makes 44-50\,\% longer cycles (26\,882
+        vs.\ 17\,935-18\,678), but it chooses much cheaper nodes (32\,515
+        vs.\ 40\,798-41\,774). On this instance the two effects almost cancel
+        out. We think the reason is simple geometry: to add a far, cheap node
+        at the end of a path we pay its distance once, but to insert it into
+        the cycle we pay about twice as much, because we have to go there and
+        come back. So the insertion methods prefer more expensive nodes that
+        are close. On TSPA the node costs of the three methods are similar
+        (51\,276-53\,835), so the shorter cycles win.
+  \item On TSPB the order by average is not reliable. By median, greedy cycle
+        is the best (59\,167) and nearest neighbour (any position) is the worst
+        (60\,254). Nearest neighbour (any position) also has the widest range
+        of results (52\,915 to 66\,164): a few very good solutions, including
+        the best one of all methods, pull its average down, while a few weaker
+        solutions pull up the average of greedy cycle.
+  \item The edge back to the start explains much of this range. Nearest
+        neighbour (any position) ignores this edge while building the path, so
+        the two ends of the path can end up far apart. On average this edge is
+        2\,031 long on TSPB and 1\,576 on TSPA, and in its best TSPB solution
+        it is the longest edge of the cycle (1\,850). In greedy cycle it is a
+        normal edge (194 and 233 on average), because in every step it can be
+        split like any other edge.
+  \item Node costs are 56-70\,\% of the objective of the best greedy solutions
+        (for example 51\,020 of 72\,590 for the best greedy cycle on TSPA), so
+        choosing the right nodes matters at least as much as their order. The
+        greedy methods never change a node once it is chosen, so methods that
+        can swap chosen and unchosen nodes could improve these solutions a lot.
+\end{itemize}
+
+\end{document}
