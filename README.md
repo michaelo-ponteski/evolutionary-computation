@@ -13,6 +13,7 @@ problem/   instances TSPA.csv, TSPB.csv (x;y;cost per node)
 common/    shared library: instance + distance matrix, objective, validation,
            experiment runner, heuristics
 lab1/      greedy heuristics (random, nearest neighbour ×2, greedy cycle)
+lab2/      greedy 2-regret heuristics (pure and weighted, NN- and cycle-based)
 scripts/   plotting (Python, conda env from environment.yml)
 ```
 
@@ -23,6 +24,7 @@ Requires Rust (stable, edition 2024).
 ```sh
 cargo test                     # objective checked against the course solution checker
 cargo run --release -p lab1    # run the lab 1 experiment
+cargo run --release -p lab2    # run the lab 2 experiment
 ```
 
 Results land in `labN/results/` (`summary.csv` + best tours, one node index per
@@ -48,5 +50,5 @@ conda run -n ec python scripts/report_tables.py lab1 # LaTeX tables from the res
 cd lab1/report && tectonic -X compile report.tex     # report.pdf
 ```
 
-The report pulls every number from the generated tables, so these steps
+Replace `lab1` with `lab2` for the second report. The report pulls every number from the generated tables, so these steps
 rebuild it without manual edits.

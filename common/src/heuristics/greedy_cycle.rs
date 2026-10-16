@@ -1,4 +1,4 @@
-use crate::heuristics::insertion::{grow_by_insertion, start_from};
+use crate::heuristics::insertion::{grow_by_insertion, start_cycle};
 use crate::instance::Instance;
 use crate::solution::Tour;
 
@@ -9,15 +9,7 @@ use crate::solution::Tour;
 /// the node with the smallest objective increase into the best edge of the
 /// current cycle (closing edge included).
 pub fn greedy_cycle(inst: &Instance, start: usize) -> Tour {
-    let (mut tour, mut used) = start_from(inst, start);
-
-    let nearest = (0..inst.n)
-        .filter(|&j| !used[j])
-        .min_by_key(|&j| inst.d(start, j) + inst.costs[j])
-        .expect("instance has a single node");
-    tour.push(nearest);
-    used[nearest] = true;
-
+    let (mut tour, mut used) = start_cycle(inst, start);
     grow_by_insertion(inst, &mut tour, &mut used, true);
     tour
 }

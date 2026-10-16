@@ -23,7 +23,10 @@ from matplotlib.lines import Line2D
 import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
-METHOD_ORDER = ["random", "nn_end", "nn_anywhere", "greedy_cycle"]
+METHOD_ORDER = [
+    "random", "nn_end", "nn_anywhere", "greedy_cycle",
+    "nn_regret", "nn_weighted", "cycle_regret", "cycle_weighted",
+]
 
 
 def load_instance(name: str) -> np.ndarray:

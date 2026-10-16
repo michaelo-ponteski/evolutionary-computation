@@ -1,0 +1,17 @@
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{TSPA} & \multicolumn{3}{c}{TSPB} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & avg & min & max & avg & min & max \\
+\midrule
+Random & 261\,928 & 236\,759 & 289\,659 & 205\,907 & 174\,617 & 233\,796 \\
+NN (end only) & 87\,477 & 84\,362 & 90\,075 & 59\,397 & 56\,007 & 63\,166 \\
+NN (any position) & 74\,347 & 72\,328 & 77\,022 & 59\,476 & 52\,915 & 66\,164 \\
+Greedy cycle & 73\,797 & 72\,590 & 75\,281 & 59\,709 & 53\,016 & 63\,736 \\
+\midrule
+NN 2-regret & 122\,861 & 111\,527 & 133\,181 & 74\,763 & 69\,032 & 80\,767 \\
+NN 2-regret + change & 75\,554 & 72\,419 & 78\,504 & \textbf{55\,698} & \textbf{50\,485} & 61\,406 \\
+Cycle 2-regret & 120\,995 & 112\,654 & 130\,391 & 73\,459 & 69\,609 & 78\,175 \\
+Cycle 2-regret + change & \textbf{73\,354} & \textbf{72\,011} & 75\,532 & 57\,866 & 52\,731 & 63\,370 \\
+\bottomrule
+\end{tabular}

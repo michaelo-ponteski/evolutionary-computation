@@ -1,0 +1,9 @@
+instance,method,reported,checker,match
+TSPA,cycle_regret,112654,112654,True
+TSPA,cycle_weighted,72011,72011,True
+TSPA,nn_regret,111527,111527,True
+TSPA,nn_weighted,72419,72419,True
+TSPB,cycle_regret,69609,69609,True
+TSPB,cycle_weighted,52731,52731,True
+TSPB,nn_regret,69032,69032,True
+TSPB,nn_weighted,50485,50485,True
